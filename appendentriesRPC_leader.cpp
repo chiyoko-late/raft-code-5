@@ -2,8 +2,6 @@
 
 #include "appendentries.h"
 #include "debug.h"
-#include <thread>
-#include <mutex>
 
 std::mutex mutex;
 int replicatelog_num;
@@ -13,85 +11,6 @@ struct AppendEntriesRPC_Argument *AERPC_A = new struct AppendEntriesRPC_Argument
 struct AllServer_PersistentState *AS_PS = new struct AllServer_PersistentState;
 struct AllServer_VolatileState *AS_VS = new struct AllServer_VolatileState;
 struct Leader_VolatileState *L_VS = new struct Leader_VolatileState;
-
-// int connect_client(int port, char *ip)
-// {
-//     // ソケット作成
-//     int sock;
-//     struct sockaddr_in addr;
-//     sock = socket(AF_INET, SOCK_STREAM, 0);
-//     if (sock < 0)
-//     {
-//         perror("socket error ");
-//         exit(0);
-//     }
-//     memset(&addr, 0, sizeof(struct sockaddr_in));
-//     /* サーバーのIPアドレスとポートの情報を設定 */
-//     // client
-//     addr.sin_family = AF_INET;
-//     addr.sin_port = htons(port);
-//     addr.sin_addr.s_addr = htonl(INADDR_ANY);
-//     const size_t addr_size = sizeof(addr);
-
-//     // client-leader
-//     if (bind(sock, (struct sockaddr *)&addr, addr_size) == -1)
-//     {
-//         perror("bind error ");
-//         close(sock);
-//         exit(0);
-//     }
-//     printf("bind port=%d\n", port);
-//     // クライアントのコネクション待ち状態は最大10
-//     if (listen(sock, 10) == -1)
-//     {
-//         perror("listen error ");
-//         close(sock);
-//         exit(0);
-//     }
-//     printf("listen success!connected with client\n");
-
-//     return 0;
-// }
-
-// int connect_follower(int port, char *ip, int i)
-// {
-//     // ソケット作成
-//     int sock;
-//     struct sockaddr_in addr;
-//     sock = socket(AF_INET, SOCK_STREAM, 0);
-//     if (sock < 0)
-//     {
-//         perror("socket error ");
-//         exit(0);
-//     }
-//     memset(&addr, 0, sizeof(struct sockaddr_in));
-
-//     // // follower
-//     addr.sin_family = AF_INET;
-//     addr.sin_port = htons(port);
-//     addr.sin_addr.s_addr = inet_addr(ip);
-//     const size_t addr_size = sizeof(addr);
-
-//     int opt = 1;
-//     // ポートが解放されない場合, SO_REUSEADDRを使う
-//     if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(opt)) == -1)
-//     {
-//         perror("setsockopt error ");
-//         close(sock);
-//         exit(0);
-//     }
-
-//     /* followerとconnect */
-//     printf("Start connect...thread%d\n", i);
-//     int k = 0;
-//     connect(sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
-//     my_recv(sock, &k, sizeof(int) * 1);
-//     if (k == 1)
-//     {
-//         printf("thread%d succeeded to connect with follower\n", i);
-//     }
-//     return 0;
-// }
 
 void AppendEntriesRPC(
     // int connectserver_num,

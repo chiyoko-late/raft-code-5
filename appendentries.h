@@ -17,6 +17,7 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
+#include <mutex>
 #include "my_sock.h"
 
 #define SERVER_ADDR "0.0.0.0"
