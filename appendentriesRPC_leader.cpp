@@ -365,16 +365,11 @@ ACCEPT:
         AS_VS->LastAppliedIndex += 1;
 
         // replicatelog_num = AppendEntriesRPC(connectserver_num, sock, AERPC_A, AERPC_R, L_VS, AS_VS, AS_PS);
-        std::thread threads[2];
-        for (int i = 0; i < 2; i++)
-        {
-            threads[i] = std::thread(AppendEntriesRPC, i);
-        }
+        std::thread threads0(AppendEntriesRPC, 0);
+        std::thread threads1(AppendEntriesRPC, 1);
 
-        for (int i = 0; i < 2; i++)
-        {
-            threads[i].join();
-        }
+        threads0.join();
+        threads1.join();
 
         int result = 0;
         printf("replicatelog_num :%d\n", replicatelog_num);
