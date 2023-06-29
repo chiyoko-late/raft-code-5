@@ -1,4 +1,4 @@
-// ./ client 127.0.0.1
+// ./client 127.0.0.1
 #include "appendentries.h"
 #include "debug.h"
 // #define NULL __DARWIN_NULL
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     printf("entry -> ");
     scanf("%s", str);
     /* 接続済のソケットでデータのやり取り */
-    while (i < 8)
+    while (i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM))
     {
 
         printf("%d回目\n", i);
@@ -83,7 +83,6 @@ int main(int argc, char *argv[])
         clock_gettime(CLOCK_MONOTONIC, &ts2);
         t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
         fprintf(timerec, "%.4f\n", t);
-        // fwrite(&t, sizeof(double), 1, timerec);
         printf("%.4f\n", t);
         i++;
     }

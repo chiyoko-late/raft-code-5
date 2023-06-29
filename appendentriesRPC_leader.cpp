@@ -1,18 +1,111 @@
-/* leader log 127.0.0.1 127.0.0.1 127.0.0.1 127.0.0.1 */
+/* ./leader log 127.0.0.1 127.0.0.1 127.0.0.1 127.0.0.1 */
 
 #include "appendentries.h"
 #include "debug.h"
+#include <thread>
+#include <mutex>
 
-int AppendEntriesRPC(
-    int connectserver_num,
-    int sock[],
-    struct AppendEntriesRPC_Argument *AERPC_A,
-    struct AppendEntriesRPC_Result *AERPC_R,
-    struct Leader_VolatileState *L_VS,
-    struct AllServer_VolatileState *AS_VS,
-    struct AllServer_PersistentState *AS_PS)
+std::mutex mutex;
+int replicatelog_num;
+int sock[3];
+
+struct AppendEntriesRPC_Argument *AERPC_A = new struct AppendEntriesRPC_Argument;
+struct AllServer_PersistentState *AS_PS = new struct AllServer_PersistentState;
+struct AllServer_VolatileState *AS_VS = new struct AllServer_VolatileState;
+struct Leader_VolatileState *L_VS = new struct Leader_VolatileState;
+
+// int connect_client(int port, char *ip)
+// {
+//     // ソケット作成
+//     int sock;
+//     struct sockaddr_in addr;
+//     sock = socket(AF_INET, SOCK_STREAM, 0);
+//     if (sock < 0)
+//     {
+//         perror("socket error ");
+//         exit(0);
+//     }
+//     memset(&addr, 0, sizeof(struct sockaddr_in));
+//     /* サーバーのIPアドレスとポートの情報を設定 */
+//     // client
+//     addr.sin_family = AF_INET;
+//     addr.sin_port = htons(port);
+//     addr.sin_addr.s_addr = htonl(INADDR_ANY);
+//     const size_t addr_size = sizeof(addr);
+
+//     // client-leader
+//     if (bind(sock, (struct sockaddr *)&addr, addr_size) == -1)
+//     {
+//         perror("bind error ");
+//         close(sock);
+//         exit(0);
+//     }
+//     printf("bind port=%d\n", port);
+//     // クライアントのコネクション待ち状態は最大10
+//     if (listen(sock, 10) == -1)
+//     {
+//         perror("listen error ");
+//         close(sock);
+//         exit(0);
+//     }
+//     printf("listen success!connected with client\n");
+
+//     return 0;
+// }
+
+// int connect_follower(int port, char *ip, int i)
+// {
+//     // ソケット作成
+//     int sock;
+//     struct sockaddr_in addr;
+//     sock = socket(AF_INET, SOCK_STREAM, 0);
+//     if (sock < 0)
+//     {
+//         perror("socket error ");
+//         exit(0);
+//     }
+//     memset(&addr, 0, sizeof(struct sockaddr_in));
+
+//     // // follower
+//     addr.sin_family = AF_INET;
+//     addr.sin_port = htons(port);
+//     addr.sin_addr.s_addr = inet_addr(ip);
+//     const size_t addr_size = sizeof(addr);
+
+//     int opt = 1;
+//     // ポートが解放されない場合, SO_REUSEADDRを使う
+//     if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(opt)) == -1)
+//     {
+//         perror("setsockopt error ");
+//         close(sock);
+//         exit(0);
+//     }
+
+//     /* followerとconnect */
+//     printf("Start connect...thread%d\n", i);
+//     int k = 0;
+//     connect(sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
+//     my_recv(sock, &k, sizeof(int) * 1);
+//     if (k == 1)
+//     {
+//         printf("thread%d succeeded to connect with follower\n", i);
+//     }
+//     return 0;
+// }
+
+void AppendEntriesRPC(
+    // int connectserver_num,
+    int i
+    // int &sock
+    // struct AppendEntriesRPC_Argument *AERPC_A,
+    // struct AppendEntriesRPC_Result *AERPC_R,
+    // struct Leader_VolatileState *L_VS,
+    // struct AllServer_VolatileState *AS_VS,
+    // struct AllServer_PersistentState *AS_PS
+)
 {
-    int replicatelog_num = 0;
+
+    printf("---%d---\n", i);
 
     /* AERPC_Aの設定 */
 
@@ -22,76 +115,119 @@ int AppendEntriesRPC(
     AERPC_A->leaderCommit = AS_VS->commitIndex;
     AERPC_A->entries = AS_PS->log.entries;
 
-    // for (int i = 1; i < ONCE_SEND_ENTRIES; i++)
+    // for (int i = 1; i <= connectserver_num; i++)
     // {
-    //     // strcpy(AERPC_A->entries[i - 1].entry, AS_PS->log[L_VS->nextIndex[0] + (i - 1)].entry);
+    //     my_send(sock[i], AERPC_A, sizeof(struct AppendEntriesRPC_Argument));
+    // }
+    // printf("finish sending\n\n");
+
+    // for (int i = 1; i <= connectserver_num; i++)
+    // {
+    //     my_recv(sock[i], AERPC_R, sizeof(struct AppendEntriesRPC_Result));
+    // }
+    my_send(sock[i + 1], AERPC_A, sizeof(struct AppendEntriesRPC_Argument));
+    printf("server%d finish sending\n\n", i);
+    struct AppendEntriesRPC_Result *AERPC_R = new struct AppendEntriesRPC_Result;
+    my_recv(sock[i + 1], AERPC_R, sizeof(struct AppendEntriesRPC_Result));
+
+    // for (int i = 1; i <= connectserver_num; i++)
+    // {
+    // output_AERPC_R(AERPC_R);
+    printf("recv result from server%d \n", i);
+
+    // • If successful: update nextIndex and matchIndex for follower.
+    if (AERPC_R->success == 1)
+    {
+        L_VS->nextIndex[i] += 1;
+        L_VS->matchIndex[i] += 1;
+
+        // replicatelog_num += 1;
+
+        printf("Success : server%d\n", i);
+        mutex.lock();
+        replicatelog_num++;
+        printf("Now, replicatelog_num = %d\n", replicatelog_num);
+        mutex.unlock();
+    }
+    // • If AppendEntries fails because of log inconsistency: decrement nextIndex and retry.
+    else
+    {
+        printf("failure0\n");
+        // L_VS->nextIndex[i] -= (ONCE_SEND_ENTRIES - 1);
+        // AERPC_A->prevLogIndex -= (ONCE_SEND_ENTRIES - 1);
+        // AppendEntriesRPC(connectserver_num, sock, AERPC_A, AERPC_R, L_VS, AS_VS, AS_PS);
+        printf("failure1\n");
+        exit(1);
+    }
     // }
 
-    // output_AERPC_A(AERPC_A);
-
-    for (int i = 1; i <= connectserver_num; i++)
-    {
-        my_send(sock[i], AERPC_A, sizeof(struct AppendEntriesRPC_Argument));
-    }
-    printf("finish sending\n\n");
-
-    for (int i = 1; i <= connectserver_num; i++)
-    {
-        my_recv(sock[i], AERPC_R, sizeof(struct AppendEntriesRPC_Result));
-    }
-
-    for (int i = 1; i <= connectserver_num; i++)
-    {
-        // output_AERPC_R(AERPC_R);
-        printf("send to server %d\n", i);
-
-        // • If successful: update nextIndex and matchIndex for follower.
-        if (AERPC_R->success == 1)
-        {
-            L_VS->nextIndex[i] += 1;
-            L_VS->matchIndex[i] += 1;
-
-            replicatelog_num += 1;
-
-            printf("Success:%d\n", i);
-        }
-        // • If AppendEntries fails because of log inconsistency: decrement nextIndex and retry.
-        else
-        {
-            printf("failure0\n");
-            // L_VS->nextIndex[i] -= (ONCE_SEND_ENTRIES - 1);
-            // AERPC_A->prevLogIndex -= (ONCE_SEND_ENTRIES - 1);
-            // AppendEntriesRPC(connectserver_num, sock, AERPC_A, AERPC_R, L_VS, AS_VS, AS_PS);
-            printf("failure1\n");
-            exit(1);
-        }
-    }
-
-    return replicatelog_num;
+    // return replicatelog_num;
+    // return 0;
 }
 
 int main(int argc, char *argv[])
 {
     printf("made logfile\n");
     make_logfile(argv[1]);
+    /* log記述用のファイル */
+    // make_logfile(argv[1]);
 
-    int port[5];
+    // 時間記録用ファイル
+    FILE *timerec;
+    timerec = fopen("timerecord.txt", "w+");
+    if (timerec == NULL)
+    {
+        printf("cannot open file\n");
+        exit(1);
+    }
+
+    // リーダの状態：初期設定
+    // struct AllServer_PersistentState *AS_PS = new struct AllServer_PersistentState;
+    // struct AllServer_VolatileState *AS_VS = new struct AllServer_VolatileState;
+    // struct Leader_VolatileState *L_VS = new struct Leader_VolatileState;
+
+    AS_PS->currentTerm = 1;
+    AS_PS->voteFor = 0;
+    AS_PS->log.index = 0;
+    AS_PS->log.term = 0;
+
+    AS_VS->commitIndex = 0;
+    AS_VS->LastAppliedIndex = 0;
+    for (int i = 0; i < 2; i++)
+    {
+        L_VS->nextIndex[i] = 1;
+        L_VS->matchIndex[i] = 0;
+    }
+
+    // std::thread threads[3];
+
+    int port[3];
     port[0] = 1111;
     port[1] = 1234;
     port[2] = 2345;
-    port[3] = 3456;
-    port[4] = 4567;
+    // port[3] = 3456;
+    // port[4] = 4567;
 
-    char *ip[4];
+    char *ip[2];
     ip[0] = argv[2];
     ip[1] = argv[3];
-    ip[2] = argv[4];
-    ip[3] = argv[5];
+    // ip[2] = argv[4];
+    // ip[3] = argv[5];
+
+    // ーーー3threadでしたとき
+    // [follower] thread1,2 : port1,2 : ip0,1
+    // for (int i = 0; i < 2; i++)
+    // {
+    //     threads[i + 1] = std::thread(connect_follower(port[i + 1], ip[i], i));
+    // }
+    // // client : thread0 : port0
+    // threads[0] = std::thread(connect_client(port[0], ip[0]));
+    // ーーーーーーーーーー
 
     // ソケット作成
-    int sock[5];
-    struct sockaddr_in addr[5];
-    for (int i = 0; i < 5; i++)
+    // int sock[3];
+    struct sockaddr_in addr[3];
+    for (int i = 0; i < 3; i++)
     {
         sock[i] = socket(AF_INET, SOCK_STREAM, 0);
         if (sock[i] < 0)
@@ -109,7 +245,7 @@ int main(int argc, char *argv[])
     const size_t addr_size = sizeof(addr[0]);
 
     // follower
-    for (int i = 1; i < 5; i++)
+    for (int i = 1; i < 3; i++)
     {
         addr[i].sin_family = AF_INET;
         addr[i].sin_port = htons(port[i]);
@@ -119,7 +255,7 @@ int main(int argc, char *argv[])
 
     int opt = 1;
     // ポートが解放されない場合, SO_REUSEADDRを使う
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 3; i++)
     {
         if (setsockopt(sock[i], SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(opt)) == -1)
         {
@@ -147,10 +283,12 @@ int main(int argc, char *argv[])
     printf("listen success!\n");
 
     // /* followerとconnect */
+
     int connectserver_num = 0;
     printf("Start connect...\n");
-    for (int i = 1; i < 5; i++)
+    for (int i = 1; i < 3; i++)
     {
+
         int k = 0;
         connect(sock[i], (struct sockaddr *)&addr[i], sizeof(struct sockaddr_in));
         my_recv(sock[i], &k, sizeof(int) * 1);
@@ -159,14 +297,25 @@ int main(int argc, char *argv[])
             connectserver_num += k;
         }
     }
+    // int connectserver_num = 2;
     printf("Finish connect with %dservers!\n", connectserver_num);
+
+    // 初期設定
+    // struct AppendEntriesRPC_Argument *AERPC_A = new struct AppendEntriesRPC_Argument;
+    // struct AppendEntriesRPC_Result *AERPC_R = new struct AppendEntriesRPC_Result;
+
+    AERPC_A->term = 1;
+    AERPC_A->leaderID = 1;
+    AERPC_A->prevLogIndex = 0;
+    AERPC_A->prevLogTerm = 0;
+    AERPC_A->leaderCommit = 0;
 
     int last_id = 0;
     int sock_client = 0;
     char *buffer = (char *)malloc(32 * 1024 * 1024);
 
 ACCEPT:
-    //     // 接続が切れた場合, acceptからやり直す
+    // 接続が切れた場合, acceptからやり直す
     printf("last_id=%d\n", last_id);
     int old_sock_client = sock_client;
     struct sockaddr_in accept_addr = {
@@ -191,58 +340,19 @@ ACCEPT:
     my_recv(sock_client, &k, sizeof(int) * 1);
     printf("%d\n", k);
 
-    struct AppendEntriesRPC_Argument *AERPC_A = new struct AppendEntriesRPC_Argument;
-    struct AppendEntriesRPC_Result *AERPC_R = new struct AppendEntriesRPC_Result;
-    struct AllServer_PersistentState *AS_PS = new struct AllServer_PersistentState;
-    struct AllServer_VolatileState *AS_VS = new struct AllServer_VolatileState;
-    struct Leader_VolatileState *L_VS = new struct Leader_VolatileState;
-
-    // 初期設定
-    AERPC_A->term = 1;
-    AERPC_A->leaderID = 1;
-    AERPC_A->prevLogIndex = 0;
-    AERPC_A->prevLogTerm = 0;
-    AERPC_A->leaderCommit = 0;
-    AS_PS->currentTerm = 1;
-    AS_PS->voteFor = 0;
-    AS_PS->log.index = 0;
-    AS_PS->log.term = 0;
-
-    AS_VS->commitIndex = 0;
-    AS_VS->LastAppliedIndex = 0;
-
-    for (int i = 0; i < 4; i++)
-    {
-        L_VS->nextIndex[i] = 1;
-        L_VS->matchIndex[i] = 0;
-    }
-
-    int replicatelog_num;
-
-    /* log記述用のファイル名 */
-    make_logfile(argv[1]);
-
-    // 時間記録用ファイル
-    FILE *timerec;
-    timerec = fopen("timerecord.txt", "w+");
-
-    if (timerec == NULL)
-    {
-        printf("cannot open file\n");
-        exit(1);
-    }
-
     /* 接続済のソケットでデータのやり取り */
-    for (int i = 1; i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM); i++)
+    for (int i = 0; i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM) - 1; i++)
     {
         printf("replicate start!\n");
+        replicatelog_num = 0;
+        printf("replicatelog_num::%d\n", replicatelog_num);
         // clock_gettime(CLOCK_MONOTONIC, &ts1);
         for (int k = 0; k < ENTRY_NUM; k++)
         {
             // clientから受け取り
-            printf("%d\n", k);
+            // printf("%d\n", k);
             my_recv(sock_client, &AS_PS->log.entries[k], sizeof(char) * STRING);
-            printf("resv\n");
+            // printf("resv\n");
         }
         // exit(0);
         AS_PS->log.term = AS_PS->currentTerm;
@@ -254,10 +364,21 @@ ACCEPT:
         /* AS_VSの更新 */
         AS_VS->LastAppliedIndex += 1;
 
-        replicatelog_num = AppendEntriesRPC(connectserver_num, sock, AERPC_A, AERPC_R, L_VS, AS_VS, AS_PS);
+        // replicatelog_num = AppendEntriesRPC(connectserver_num, sock, AERPC_A, AERPC_R, L_VS, AS_VS, AS_PS);
+        std::thread threads[2];
+        for (int i = 0; i < 2; i++)
+        {
+            threads[i] = std::thread(AppendEntriesRPC, i);
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            threads[i].join();
+        }
 
         int result = 0;
-        if (replicatelog_num > (connectserver_num + 1) / 2)
+        printf("replicatelog_num :%d\n", replicatelog_num);
+        if (replicatelog_num + 1 > (connectserver_num + 1) / 2)
         {
             printf("majority of servers replicated\n");
             AS_VS->commitIndex += 1;

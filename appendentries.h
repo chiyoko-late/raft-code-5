@@ -16,6 +16,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <thread>
 #include "my_sock.h"
 
 #define SERVER_ADDR "0.0.0.0"
@@ -87,8 +88,8 @@ struct AllServer_VolatileState
 
 struct Leader_VolatileState
 {
-    std::vector<int> nextIndex = std::vector<int>(4);
-    std::vector<int> matchIndex = std::vector<int>(4);
+    std::vector<int> nextIndex = std::vector<int>(2);
+    std::vector<int> matchIndex = std::vector<int>(2);
 };
 
 char *filename;

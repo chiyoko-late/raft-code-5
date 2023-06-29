@@ -1,6 +1,6 @@
 
 
-CC = g++ -g
+CC = g++ -std=c++11
 
 All: leader followers client
 
