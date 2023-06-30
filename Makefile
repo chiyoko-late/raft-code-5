@@ -1,6 +1,6 @@
 
 
-CC = g++ -std=c++11
+CC = g++ -std=c++11 -pthread
 
 All: leader followers client
 
