@@ -22,8 +22,8 @@
 
 #define SERVER_ADDR "0.0.0.0"
 #define STRING (10LL)
-#define ALL_ACCEPTED_ENTRIES (1000L*100)
-#define ENTRY_NUM (1000L*10L)
+#define ALL_ACCEPTED_ENTRIES (1000L*1000)
+#define ENTRY_NUM (1000L*100L)
 
 // using namespace std;
 
