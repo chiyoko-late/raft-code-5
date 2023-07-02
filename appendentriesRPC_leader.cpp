@@ -277,7 +277,7 @@ ACCEPT:
         AS_PS->log.term = AS_PS->currentTerm;
         AS_PS->log.index = AS_PS->log.index + 1;
 
-        // write_log(i, AS_PS);
+        write_log(AS_PS->log.index, &AS_PS->log);
         // read_log(i);
 
         /* AS_VSの更新 */
@@ -286,9 +286,6 @@ ACCEPT:
         // replicatelog_num = AppendEntriesRPC(connectserver_num, sock, AERPC_A, AERPC_R, L_VS, AS_VS, AS_PS);
         std::thread threads0(AppendEntriesRPC, 0);
         std::thread threads1(AppendEntriesRPC, 1);
-
-        threads0.join();
-        threads1.join();
 
         int result = 0;
         printf("replicatelog_num :%d\n", replicatelog_num);
@@ -302,6 +299,9 @@ ACCEPT:
 
         // clock_gettime(CLOCK_MONOTONIC, &ts2);
         t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
+
+        threads0.join();
+        threads1.join();
 
         // fprintf(timerec, "%.4f\n", t);
         // printf("%.4f\n", t);
