@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     while (i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM))
     {
 
-        printf("%d回目\n", i);
+        // printf("%d回目\n", i);
         /* leaderに送る */
         clock_gettime(CLOCK_MONOTONIC, &ts1);
         for (int i = 0; i < ENTRY_NUM; i++)
@@ -72,12 +72,10 @@ int main(int argc, char *argv[])
             my_send(sock, str, sizeof(char) * STRING);
         }
         my_recv(sock, &result, sizeof(int));
-        if (result == 1)
+        if (result != 1)
         {
-            printf("commit\n");
-        }
-        else
-        {
+            // printf("commit\n");
+
             printf("There is something error!!\n");
         }
         clock_gettime(CLOCK_MONOTONIC, &ts2);
