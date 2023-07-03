@@ -15,7 +15,7 @@ struct Leader_VolatileState *L_VS = new struct Leader_VolatileState;
 void AppendEntriesRPC(int i)
 {
 
-    printf("---%d---\n", i);
+    // printf("---%d---\n", i);
 
     /* AERPC_Aの設定 */
 
@@ -26,12 +26,12 @@ void AppendEntriesRPC(int i)
     AERPC_A->entries = AS_PS->log.entries;
 
     my_send(sock[i + 1], AERPC_A, sizeof(struct AppendEntriesRPC_Argument));
-    printf("server%d finish sending\n\n", i);
+    // printf("server%d finish sending\n\n", i);
     struct AppendEntriesRPC_Result *AERPC_R = new struct AppendEntriesRPC_Result;
     my_recv(sock[i + 1], AERPC_R, sizeof(struct AppendEntriesRPC_Result));
 
     // output_AERPC_R(AERPC_R);
-    printf("recv result from server%d \n", i);
+    // printf("recv result from server%d \n", i);
 
     // • If successful: update nextIndex and matchIndex for follower.
     if (AERPC_R->success == 1)
@@ -39,10 +39,10 @@ void AppendEntriesRPC(int i)
         L_VS->nextIndex[i] += 1;
         L_VS->matchIndex[i] += 1;
 
-        printf("Success : server%d\n", i);
+        // printf("Success : server%d\n", i);
         mutex.lock();
         replicatelog_num++;
-        printf("Now, replicatelog_num = %d\n", replicatelog_num);
+        // printf("Now, replicatelog_num = %d\n", replicatelog_num);
         mutex.unlock();
     }
     // • If AppendEntries fails because of log inconsistency: decrement nextIndex and retry.
@@ -64,9 +64,9 @@ void worker(int &sock_client, int &connectserver_num)
 {
     for (int i = 0; i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM); i++)
     {
-        printf("replicate start!\n");
+        printf("i = %d\n", i);
         replicatelog_num = 0;
-        printf("replicatelog_num::%d\n", replicatelog_num);
+        // printf("replicatelog_num::%d\n", replicatelog_num);
         // clock_gettime(CLOCK_MONOTONIC, &ts1);
         for (int k = 0; k < ENTRY_NUM; k++)
         {
@@ -91,10 +91,10 @@ void worker(int &sock_client, int &connectserver_num)
         threads1.join();
 
         int result = 0;
-        printf("replicatelog_num :%d\n", replicatelog_num);
+        // printf("replicatelog_num :%d\n", replicatelog_num);
         if (replicatelog_num + 1 > (connectserver_num + 1) / 2)
         {
-            printf("majority of servers replicated\n");
+            // printf("majority of servers replicated\n");
             AS_VS->commitIndex += 1;
             result = 1;
         }
