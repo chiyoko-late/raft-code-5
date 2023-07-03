@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     scanf("%s", str);
     /* 接続済のソケットでデータのやり取り */
     clock_gettime(CLOCK_MONOTONIC, &ts1);
-    while (i < (ALL_ACCEPTED_ENTRIES / (ENTRY_NUM * STRING)))
+    while (i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM))
     {
 
         // printf("%d回目\n", i);
