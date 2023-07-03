@@ -215,7 +215,7 @@ ACCEPT:
 
     AS_PS->currentTerm += 1;
 
-    for (int i = 1; i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM); i++)
+    for (int i = 0; i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM); i++)
     {
         transfer(sock_leader, AERPC_A, AERPC_R, AS_PS, AS_VS);
     }

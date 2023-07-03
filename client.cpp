@@ -57,16 +57,17 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    int i = 1;
+    int i = 0;
     printf("entry -> ");
     scanf("%s", str);
     /* 接続済のソケットでデータのやり取り */
+    clock_gettime(CLOCK_MONOTONIC, &ts1);
     while (i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM))
     {
 
         // printf("%d回目\n", i);
         /* leaderに送る */
-        clock_gettime(CLOCK_MONOTONIC, &ts1);
+
         for (int i = 0; i < ENTRY_NUM; i++)
         {
             my_send(sock, str, sizeof(char) * STRING);
@@ -78,12 +79,12 @@ int main(int argc, char *argv[])
 
             printf("There is something error!!\n");
         }
-        clock_gettime(CLOCK_MONOTONIC, &ts2);
-        t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
-        fprintf(timerec, "%.4f\n", t);
-        printf("%.4f\n", t);
         i++;
     }
+    clock_gettime(CLOCK_MONOTONIC, &ts2);
+    t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
+    fprintf(timerec, "%.4f\n", t);
+    printf("%.4f\n", t);
 
     exit(0);
 }

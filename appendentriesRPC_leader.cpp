@@ -62,7 +62,7 @@ void AppendEntriesRPC(int i)
 
 void worker(int &sock_client, int &connectserver_num)
 {
-    for (int i = 0; i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM) - 1; i++)
+    for (int i = 0; i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM); i++)
     {
         printf("replicate start!\n");
         replicatelog_num = 0;
