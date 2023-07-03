@@ -22,8 +22,8 @@
 
 #define SERVER_ADDR "0.0.0.0"
 #define STRING (10LL)
-#define ALL_ACCEPTED_ENTRIES (10000L*10000)
-#define ENTRY_NUM (10000L*1000L)
+#define ALL_ACCEPTED_ENTRIES (100000L * 10000 * 10)
+#define ENTRY_NUM (10LL)
 
 // using namespace std;
 
@@ -102,6 +102,7 @@ void make_logfile(char *name)
 {
     filename = name;
     fdo = open(filename, (O_CREAT | O_RDWR), 0644);
+    // fdo = open(filename, (O_CREAT | O_APPEND), 0644);
     if (fdo == -1)
     {
         printf("file open error\n");
@@ -124,8 +125,14 @@ void read_prev(int prevLogIndex, int *read_index, int *read_term)
 void write_log(
     int prevLogIndex, struct LOG *log)
 {
-    lseek(fdo, sizeof(struct LOG) * prevLogIndex, SEEK_SET);
-    write(fdo, &log, sizeof(struct LOG));
+    // lseek(fdo, sizeof(struct LOG) * prevLogIndex, SEEK_SET);
+    write(fdo, &log->term, sizeof(int));
+    write(fdo, &log->index, sizeof(int));
+    for (int i = 0; i < ENTRY_NUM; i++)
+    {
+        append_entry a = log->entries[i];
+        write(fdo, &a, sizeof(append_entry));
+    }
     fsync(fdo);
     // 後ろを削除
     return;

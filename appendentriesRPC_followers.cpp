@@ -60,6 +60,7 @@ int consistency_check(
         as_ps->log.term = rpc->term;
         as_ps->log.index = rpc->prevLogIndex + 1;
         write_log(rpc->prevLogIndex, &as_ps->log);
+        // read_log(rpc->prevLogIndex);
     }
 
     as_vs->LastAppliedIndex = as_ps->log.index;

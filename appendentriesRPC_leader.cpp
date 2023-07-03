@@ -12,16 +12,7 @@ struct AllServer_PersistentState *AS_PS = new struct AllServer_PersistentState;
 struct AllServer_VolatileState *AS_VS = new struct AllServer_VolatileState;
 struct Leader_VolatileState *L_VS = new struct Leader_VolatileState;
 
-void AppendEntriesRPC(
-    // int connectserver_num,
-    int i
-    // int &sock
-    // struct AppendEntriesRPC_Argument *AERPC_A,
-    // struct AppendEntriesRPC_Result *AERPC_R,
-    // struct Leader_VolatileState *L_VS,
-    // struct AllServer_VolatileState *AS_VS,
-    // struct AllServer_PersistentState *AS_PS
-)
+void AppendEntriesRPC(int i)
 {
 
     printf("---%d---\n", i);
@@ -34,23 +25,11 @@ void AppendEntriesRPC(
     AERPC_A->leaderCommit = AS_VS->commitIndex;
     AERPC_A->entries = AS_PS->log.entries;
 
-    // for (int i = 1; i <= connectserver_num; i++)
-    // {
-    //     my_send(sock[i], AERPC_A, sizeof(struct AppendEntriesRPC_Argument));
-    // }
-    // printf("finish sending\n\n");
-
-    // for (int i = 1; i <= connectserver_num; i++)
-    // {
-    //     my_recv(sock[i], AERPC_R, sizeof(struct AppendEntriesRPC_Result));
-    // }
     my_send(sock[i + 1], AERPC_A, sizeof(struct AppendEntriesRPC_Argument));
     printf("server%d finish sending\n\n", i);
     struct AppendEntriesRPC_Result *AERPC_R = new struct AppendEntriesRPC_Result;
     my_recv(sock[i + 1], AERPC_R, sizeof(struct AppendEntriesRPC_Result));
 
-    // for (int i = 1; i <= connectserver_num; i++)
-    // {
     // output_AERPC_R(AERPC_R);
     printf("recv result from server%d \n", i);
 
@@ -59,8 +38,6 @@ void AppendEntriesRPC(
     {
         L_VS->nextIndex[i] += 1;
         L_VS->matchIndex[i] += 1;
-
-        // replicatelog_num += 1;
 
         printf("Success : server%d\n", i);
         mutex.lock();
@@ -78,10 +55,57 @@ void AppendEntriesRPC(
         printf("failure1\n");
         exit(1);
     }
-    // }
 
     // return replicatelog_num;
     // return 0;
+}
+
+void worker(int &sock_client, int &connectserver_num)
+{
+    for (int i = 0; i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM) - 1; i++)
+    {
+        printf("replicate start!\n");
+        replicatelog_num = 0;
+        printf("replicatelog_num::%d\n", replicatelog_num);
+        // clock_gettime(CLOCK_MONOTONIC, &ts1);
+        for (int k = 0; k < ENTRY_NUM; k++)
+        {
+            // clientから受け取り
+            my_recv(sock_client, &AS_PS->log.entries[k], sizeof(char) * STRING);
+        }
+
+        AS_PS->log.term = AS_PS->currentTerm;
+        AS_PS->log.index = AS_PS->log.index + 1;
+
+        write_log(AS_PS->log.index, &AS_PS->log);
+        // read_log(AS_PS->log.index);
+
+        /* AS_VSの更新 */
+        AS_VS->LastAppliedIndex += 1;
+
+        // replicatelog_num = AppendEntriesRPC(connectserver_num, sock, AERPC_A, AERPC_R, L_VS, AS_VS, AS_PS);
+        std::thread threads0(AppendEntriesRPC, 0);
+        std::thread threads1(AppendEntriesRPC, 1);
+
+        threads0.join();
+        threads1.join();
+
+        int result = 0;
+        printf("replicatelog_num :%d\n", replicatelog_num);
+        if (replicatelog_num + 1 > (connectserver_num + 1) / 2)
+        {
+            printf("majority of servers replicated\n");
+            AS_VS->commitIndex += 1;
+            result = 1;
+        }
+        my_send(sock_client, &result, sizeof(int) * 1);
+
+        // clock_gettime(CLOCK_MONOTONIC, &ts2);
+        t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
+
+        // fprintf(timerec, "%.4f\n", t);
+        // printf("%.4f\n", t);
+    }
 }
 
 int main(int argc, char *argv[])
@@ -259,53 +283,54 @@ ACCEPT:
     my_recv(sock_client, &k, sizeof(int) * 1);
     printf("%d\n", k);
 
+    std::thread t1(worker, std::ref(sock_client), std::ref(connectserver_num));
+    t1.join();
+
     /* 接続済のソケットでデータのやり取り */
-    for (int i = 0; i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM) - 1; i++)
-    {
-        printf("replicate start!\n");
-        replicatelog_num = 0;
-        printf("replicatelog_num::%d\n", replicatelog_num);
-        // clock_gettime(CLOCK_MONOTONIC, &ts1);
-        for (int k = 0; k < ENTRY_NUM; k++)
-        {
-            // clientから受け取り
-            // printf("%d\n", k);
-            my_recv(sock_client, &AS_PS->log.entries[k], sizeof(char) * STRING);
-            // printf("resv\n");
-        }
-        // exit(0);
-        AS_PS->log.term = AS_PS->currentTerm;
-        AS_PS->log.index = AS_PS->log.index + 1;
+    // for (int i = 0; i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM) - 1; i++)
+    // {
+    //     printf("replicate start!\n");
+    //     replicatelog_num = 0;
+    //     printf("replicatelog_num::%d\n", replicatelog_num);
+    //     // clock_gettime(CLOCK_MONOTONIC, &ts1);
+    //     for (int k = 0; k < ENTRY_NUM; k++)
+    //     {
+    //         // clientから受け取り
+    //         my_recv(sock_client, &AS_PS->log.entries[k], sizeof(char) * STRING);
+    //     }
 
-        write_log(AS_PS->log.index, &AS_PS->log);
-        // read_log(i);
+    //     AS_PS->log.term = AS_PS->currentTerm;
+    //     AS_PS->log.index = AS_PS->log.index + 1;
 
-        /* AS_VSの更新 */
-        AS_VS->LastAppliedIndex += 1;
+    //     write_log(AS_PS->log.index, &AS_PS->log);
+    //     // read_log(AS_PS->log.index);
 
-        // replicatelog_num = AppendEntriesRPC(connectserver_num, sock, AERPC_A, AERPC_R, L_VS, AS_VS, AS_PS);
-        std::thread threads0(AppendEntriesRPC, 0);
-        std::thread threads1(AppendEntriesRPC, 1);
+    //     /* AS_VSの更新 */
+    //     AS_VS->LastAppliedIndex += 1;
 
-        int result = 0;
-        printf("replicatelog_num :%d\n", replicatelog_num);
-        if (replicatelog_num + 1 > (connectserver_num + 1) / 2)
-        {
-            printf("majority of servers replicated\n");
-            AS_VS->commitIndex += 1;
-            result = 1;
-        }
-        my_send(sock_client, &result, sizeof(int) * 1);
+    //     // replicatelog_num = AppendEntriesRPC(connectserver_num, sock, AERPC_A, AERPC_R, L_VS, AS_VS, AS_PS);
+    //     std::thread threads0(AppendEntriesRPC, 0);
+    //     std::thread threads1(AppendEntriesRPC, 1);
 
-        // clock_gettime(CLOCK_MONOTONIC, &ts2);
-        t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
+    //     threads0.join();
+    //     threads1.join();
 
-        threads0.join();
-        threads1.join();
+    //     int result = 0;
+    //     printf("replicatelog_num :%d\n", replicatelog_num);
+    //     if (replicatelog_num + 1 > (connectserver_num + 1) / 2)
+    //     {
+    //         printf("majority of servers replicated\n");
+    //         AS_VS->commitIndex += 1;
+    //         result = 1;
+    //     }
+    //     my_send(sock_client, &result, sizeof(int) * 1);
 
-        // fprintf(timerec, "%.4f\n", t);
-        // printf("%.4f\n", t);
-    }
+    //     // clock_gettime(CLOCK_MONOTONIC, &ts2);
+    //     t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
+
+    //     // fprintf(timerec, "%.4f\n", t);
+    //     // printf("%.4f\n", t);
+    // }
 
     while (true)
     {
