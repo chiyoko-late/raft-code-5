@@ -63,7 +63,7 @@ void AppendEntriesRPC(int i)
 void worker(int &sock_client, int &connectserver_num)
 {
     // int timenum = ALL_ACCEPTED_ENTRIES / ENTRY_NUM;
-    double time[(ALL_ACCEPTED_ENTRIES / ENTRY_NUM)];
+    // double time[(ALL_ACCEPTED_ENTRIES / ENTRY_NUM)];
     for (int i = 0; i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM); i++)
     {
         printf("i = %d\n", i);
@@ -105,13 +105,14 @@ void worker(int &sock_client, int &connectserver_num)
         my_send(sock_client, &result, sizeof(int) * 1);
 
         t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
-        time[i] = t;
+        printf("%.4f\n", t);
+        // time[i] = t;
         // fprintf(timerec, "%.4f\n", t);
     }
-    for (int i = 0; i < ALL_ACCEPTED_ENTRIES / ENTRY_NUM; i++)
-    {
-        printf("%.4f\n", time[i]);
-    }
+    // for (int i = 0; i < ALL_ACCEPTED_ENTRIES / ENTRY_NUM; i++)
+    // {
+    //     printf("%.4f\n", time[i]);
+    // }
 }
 
 int main(int argc, char *argv[])
