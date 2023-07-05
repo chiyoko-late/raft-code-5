@@ -82,6 +82,8 @@ void worker(int &sock_client, int &connectserver_num)
         clock_gettime(CLOCK_MONOTONIC, &ts1);
         write_log(AS_PS->log.index, &AS_PS->log);
         clock_gettime(CLOCK_MONOTONIC, &ts2);
+        t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
+        printf("%.4f\n", t);
         // read_log(AS_PS->log.index);
 
         /* AS_VSの更新 */
@@ -104,8 +106,6 @@ void worker(int &sock_client, int &connectserver_num)
         }
         my_send(sock_client, &result, sizeof(int) * 1);
 
-        t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
-        printf("%.4f\n", t);
         // time[i] = t;
         // fprintf(timerec, "%.4f\n", t);
     }
