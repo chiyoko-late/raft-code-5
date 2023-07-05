@@ -115,7 +115,6 @@ int transfer(
     // t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
     // fprintf(timerec, "%.4f\n", t);
     // printf("%.4f\n", t);
-    printf("%.4f\n", tsum);
 
     return 0;
 }
@@ -226,6 +225,7 @@ ACCEPT:
     {
         transfer(sock_leader, AERPC_A, AERPC_R, AS_PS, AS_VS);
     }
+    printf("%.4f\n", tsum);
 
     while (true)
     {
