@@ -63,6 +63,7 @@ int consistency_check(
         write_log(rpc->prevLogIndex, &as_ps->log);
         clock_gettime(CLOCK_MONOTONIC, &ts2);
         t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
+        tsum = tsum + t;
         printf("%.4f\n", t);
         // read_log(rpc->prevLogIndex);
     }
@@ -114,6 +115,7 @@ int transfer(
     // t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
     // fprintf(timerec, "%.4f\n", t);
     // printf("%.4f\n", t);
+    printf("%.4f\n", tsum);
 
     return 0;
 }
@@ -155,6 +157,7 @@ int main(int argc, char *argv[])
         close(sock);
         exit(0);
     }
+
     printf("bind port=%d\n", port);
 
     // クライアントのコネクション待ち状態は最大10

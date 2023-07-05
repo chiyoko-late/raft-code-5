@@ -83,6 +83,7 @@ void worker(int &sock_client, int &connectserver_num)
         write_log(AS_PS->log.index, &AS_PS->log);
         clock_gettime(CLOCK_MONOTONIC, &ts2);
         t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
+        tsum = tsum + t;
         printf("%.4f\n", t);
         // read_log(AS_PS->log.index);
 
@@ -109,6 +110,8 @@ void worker(int &sock_client, int &connectserver_num)
         // time[i] = t;
         // fprintf(timerec, "%.4f\n", t);
     }
+    printf("%.4f\n", tsum);
+
     printf("%ld\n", (ALL_ACCEPTED_ENTRIES / ENTRY_NUM));
     // for (int i = 0; i < ALL_ACCEPTED_ENTRIES / ENTRY_NUM; i++)
     // {

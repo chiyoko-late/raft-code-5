@@ -23,7 +23,11 @@
 #define SERVER_ADDR "0.0.0.0"
 #define STRING (10LL)
 #define ALL_ACCEPTED_ENTRIES (10000L * 250)
-#define ENTRY_NUM (625L * 125L)
+<<<<<<< HEAD
+#define ENTRY_NUM (5000L * 125L)
+=======
+#define ENTRY_NUM (1250L * 125L)
+>>>>>>> parent of 079d13a (Update appendentries.h)
 
 // using namespace std;
 
@@ -35,6 +39,7 @@ uint64_t c1,
     c2;
 struct timespec ts1, ts2;
 double t;
+double tsum;
 
 static uint64_t rdtscp()
 {
