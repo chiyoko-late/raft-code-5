@@ -112,7 +112,7 @@ void worker(int &sock_client, int &connectserver_num)
     }
     printf("%.4f\n", tsum);
 
-    printf("%ld\n", (ALL_ACCEPTED_ENTRIES / ENTRY_NUM));
+    printf("%lld\n", (ALL_ACCEPTED_ENTRIES / ENTRY_NUM));
     // for (int i = 0; i < ALL_ACCEPTED_ENTRIES / ENTRY_NUM; i++)
     // {
     //     printf("%.4f\n", time[i]);
