@@ -62,8 +62,8 @@ void AppendEntriesRPC(int i)
 
 void worker(int &sock_client, int &connectserver_num)
 {
-    int timenum = ALL_ACCEPTED_ENTRIES / ENTRY_NUM;
-    double time[timenum];
+    // int timenum = ALL_ACCEPTED_ENTRIES / ENTRY_NUM;
+    double time[(ALL_ACCEPTED_ENTRIES / ENTRY_NUM)];
     for (int i = 0; i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM); i++)
     {
         printf("i = %d\n", i);
@@ -108,7 +108,7 @@ void worker(int &sock_client, int &connectserver_num)
         time[i] = t;
         // fprintf(timerec, "%.4f\n", t);
     }
-    for (int i = 0; i < timenum; i++)
+    for (int i = 0; i < ALL_ACCEPTED_ENTRIES / ENTRY_NUM; i++)
     {
         printf("%.4f\n", time[i]);
     }
