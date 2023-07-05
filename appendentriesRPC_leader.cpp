@@ -62,12 +62,14 @@ void AppendEntriesRPC(int i)
 
 void worker(int &sock_client, int &connectserver_num)
 {
+    int timenum = ALL_ACCEPTED_ENTRIES / ENTRY_NUM;
+    double time[timenum];
     for (int i = 0; i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM); i++)
     {
         printf("i = %d\n", i);
         replicatelog_num = 0;
         // printf("replicatelog_num::%d\n", replicatelog_num);
-        // clock_gettime(CLOCK_MONOTONIC, &ts1);
+
         for (int k = 0; k < ENTRY_NUM; k++)
         {
             // clientから受け取り
@@ -77,7 +79,9 @@ void worker(int &sock_client, int &connectserver_num)
         AS_PS->log.term = AS_PS->currentTerm;
         AS_PS->log.index = AS_PS->log.index + 1;
 
+        clock_gettime(CLOCK_MONOTONIC, &ts1);
         write_log(AS_PS->log.index, &AS_PS->log);
+        clock_gettime(CLOCK_MONOTONIC, &ts2);
         // read_log(AS_PS->log.index);
 
         /* AS_VSの更新 */
@@ -100,11 +104,13 @@ void worker(int &sock_client, int &connectserver_num)
         }
         my_send(sock_client, &result, sizeof(int) * 1);
 
-        // clock_gettime(CLOCK_MONOTONIC, &ts2);
         t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
-
+        time[i] = t;
         // fprintf(timerec, "%.4f\n", t);
-        // printf("%.4f\n", t);
+    }
+    for (int i = 0; i < timenum; i++)
+    {
+        printf("%.4f\n", time[i]);
     }
 }
 
