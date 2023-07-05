@@ -66,7 +66,7 @@ void worker(int &sock_client, int &connectserver_num)
     // double time[(ALL_ACCEPTED_ENTRIES / ENTRY_NUM)];
     for (int i = 0; i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM); i++)
     {
-        printf("i = %d\n", i);
+        // printf("i = %d\n", i);
         replicatelog_num = 0;
         // printf("replicatelog_num::%d\n", replicatelog_num);
 
@@ -109,6 +109,7 @@ void worker(int &sock_client, int &connectserver_num)
         // time[i] = t;
         // fprintf(timerec, "%.4f\n", t);
     }
+    printf("%ld\n", (ALL_ACCEPTED_ENTRIES / ENTRY_NUM));
     // for (int i = 0; i < ALL_ACCEPTED_ENTRIES / ENTRY_NUM; i++)
     // {
     //     printf("%.4f\n", time[i]);

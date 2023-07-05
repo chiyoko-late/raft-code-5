@@ -88,9 +88,9 @@ int transfer(
 {
 
     /* リーダーから文字列を受信 */
-    printf("try-recv\n");
+    // printf("try-recv\n");
     my_recv(sock, AERPC_A, sizeof(struct AppendEntriesRPC_Argument));
-    printf("Receiving AppendEntriesRPC is success.\n");
+    // printf("Receiving AppendEntriesRPC is success.\n");
 
     // output_AERPC_A(AERPC_A);
 
@@ -109,7 +109,7 @@ int transfer(
     my_send(sock, AERPC_R, sizeof(struct AppendEntriesRPC_Result));
 
     /* 受信した文字列を表示 */
-    printf("replied to leader. Send AERPC_R\n");
+    // printf("replied to leader. Send AERPC_R\n");
 
     // t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
     // fprintf(timerec, "%.4f\n", t);
