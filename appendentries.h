@@ -23,11 +23,7 @@
 #define SERVER_ADDR "0.0.0.0"
 #define STRING (10LL)
 #define ALL_ACCEPTED_ENTRIES (10000L * 250)
-<<<<<<< HEAD
-#define ENTRY_NUM (5000L * 125L)
-=======
-#define ENTRY_NUM (1250L * 125L)
->>>>>>> parent of 079d13a (Update appendentries.h)
+#define ENTRY_NUM (1000L * 50L)
 
 // using namespace std;
 
