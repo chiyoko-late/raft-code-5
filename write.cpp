@@ -22,7 +22,7 @@ int main()
         exit(1);
     }
 
-    unsigned long int size = 25000L*5*5*5*5;
+    unsigned long long int size = 25000LL*5*5*5*5;
 
     char arry[size];
 
@@ -32,7 +32,7 @@ int main()
     clock_gettime(CLOCK_MONOTONIC, &ts2);
     t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
     tsum = tsum + t;
-    printf("%ld ,%.4f\n", size, t);
+    printf("%lld ,%.4f\n", size, t);
 
     return 0;
 }
