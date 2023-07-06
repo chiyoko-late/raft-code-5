@@ -22,7 +22,7 @@ int main()
         exit(1);
     }
 
-    unsigned long long int size = 25000LL*5*5*5*2*2;
+    unsigned long long int size = 25000LL*125*2*2;
 
     char arry[size];
 
