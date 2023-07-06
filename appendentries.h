@@ -128,14 +128,14 @@ void write_log(
     int prevLogIndex, struct LOG *log)
 {
     struct append_entry for_write[ENTRY_NUM];
-
+    std::string for_write_;
     write(fdo, &log->term, sizeof(int));
     write(fdo, &log->index, sizeof(int));
     for (int i = 0; i < ENTRY_NUM; i++)
     {
-        for_write[i] = log->entries[i];
+        for_write_.append(log->entries[i].entry);
     }
-    write(fdo, &for_write, (sizeof(append_entry) * ENTRY_NUM));
+    write(fdo, for_write_.c_str(), (sizeof(append_entry) * ENTRY_NUM));
     fsync(fdo);
     return;
 }
