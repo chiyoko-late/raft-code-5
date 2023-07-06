@@ -135,7 +135,7 @@ void write_log(
     {
         for_write[i] = log->entries[i];
     }
-    write(fdo, &for_write, sizeof(append_entry));
+    write(fdo, &for_write, (sizeof(append_entry) * ENTRY_NUM));
     fsync(fdo);
     return;
 }
