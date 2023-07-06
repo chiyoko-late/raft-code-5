@@ -78,7 +78,7 @@ void worker(int &sock_client, int &connectserver_num)
 
         AS_PS->log.term = AS_PS->currentTerm;
         AS_PS->log.index = AS_PS->log.index + 1;
-
+        exit(0);
         clock_gettime(CLOCK_MONOTONIC, &ts1);
         write_log(AS_PS->log.index, &AS_PS->log);
         clock_gettime(CLOCK_MONOTONIC, &ts2);
