@@ -2,7 +2,7 @@
 
 CC = g++ -std=c++11 -pthread
 
-All: leader followers client
+All: clean leader followers client
 
 # leader: arpc_leader.cpp appendentries.h
 # 	$(CC)  arpc_leader.cpp -o leader
@@ -20,6 +20,6 @@ followers: appendentriesRPC_followers.cpp appendentries.h
 	$(CC) appendentriesRPC_followers.cpp -o followers
 
 clean:
-	rm -f leader followers client
+	rm -f leader followers client flog1 flog2 log
 
 # $(CC) appendentriesRPC_leader.o appendentriesRPC_followers.o -o append
