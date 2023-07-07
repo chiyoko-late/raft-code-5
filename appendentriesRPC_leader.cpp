@@ -74,7 +74,7 @@ void worker(int &sock_client, int &connectserver_num)
         {
             // clientから受け取り
             my_recv(sock_client, &AERPC_A->entries[k], sizeof(char) * STRING);
-            // printf("%s", AS_PS->log.entries[k].entry);
+            // printf("%s", AERPC_A->entries[k].entry);
         }
 
         AS_PS->log.term = AS_PS->currentTerm;
