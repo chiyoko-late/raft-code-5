@@ -24,7 +24,7 @@
 #define SERVER_ADDR "0.0.0.0"
 #define STRING (10LL)
 #define ALL_ACCEPTED_ENTRIES (10000L * 250)
-#define ENTRY_NUM (10000L * 125)
+#define ENTRY_NUM (10000L * 250)
 
 // using namespace std;
 
@@ -124,37 +124,19 @@ void read_prev(int prevLogIndex, int *read_index, int *read_term)
     return;
 }
 
-void write_log(
+double write_log(
     int prevLogIndex, struct LOG *log)
 {
-    struct append_entry for_write[ENTRY_NUM];
-    std::string for_write_;
+    clock_gettime(CLOCK_MONOTONIC, &ts1);
     write(fdo, &log->term, sizeof(int));
     write(fdo, &log->index, sizeof(int));
-    for (int i = 0; i < ENTRY_NUM; i++)
-    {
-        for_write_.append(log->entries[i].entry);
-    }
-    write(fdo, for_write_.c_str(), (sizeof(append_entry) * ENTRY_NUM));
+    write(fdo, log->entries.data(), sizeof(append_entry) * ENTRY_NUM);
     fsync(fdo);
-    return;
+    clock_gettime(CLOCK_MONOTONIC, &ts2);
+    t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
+    printf("%.4f\n", t);
+    return t;
 }
-
-// void write_log(
-//     int prevLogIndex, struct LOG *log)
-// {
-//     // lseek(fdo, sizeof(struct LOG) * prevLogIndex, SEEK_SET);
-//     write(fdo, &log->term, sizeof(int));
-//     write(fdo, &log->index, sizeof(int));
-//     for (int i = 0; i < ENTRY_NUM; i++)
-//     {
-//         append_entry a = log->entries[i];
-//         write(fdo, &a, sizeof(append_entry));
-//     }
-//     fsync(fdo);
-//     // 後ろを削除
-//     return;
-// }
 
 // void read_log(
 //     // char filename[],
@@ -187,7 +169,7 @@ void write_log(
 //     printf("term: %d\n", p->term);
 //     for (int i = 1; i < ONCE_SEND_ENTRIES; i++)
 //     {
-//         std::string output_string(p->entries[i - 1].entry.begin(), p->entries[i - 1].entry.end());
+// std::string output_string(p->entries[i - 1].entry.begin(), p->entries[i - 1].entry.end());
 //         printf("entry: %s\n", output_string.c_str());
 //         // cout << "entry:" << p->entries[i - 1].entry << endl;
 //     }

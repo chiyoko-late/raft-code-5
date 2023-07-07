@@ -59,12 +59,8 @@ int consistency_check(
     {
         as_ps->log.term = rpc->term;
         as_ps->log.index = rpc->prevLogIndex + 1;
-        clock_gettime(CLOCK_MONOTONIC, &ts1);
-        write_log(rpc->prevLogIndex, &as_ps->log);
-        clock_gettime(CLOCK_MONOTONIC, &ts2);
-        t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
-        tsum = tsum + t;
-        printf("%.4f\n", t);
+        tsum += write_log(rpc->prevLogIndex, &as_ps->log);
+
         // read_log(rpc->prevLogIndex);
     }
 

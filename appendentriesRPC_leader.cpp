@@ -78,13 +78,9 @@ void worker(int &sock_client, int &connectserver_num)
 
         AS_PS->log.term = AS_PS->currentTerm;
         AS_PS->log.index = AS_PS->log.index + 1;
-        exit(0);
-        clock_gettime(CLOCK_MONOTONIC, &ts1);
-        write_log(AS_PS->log.index, &AS_PS->log);
-        clock_gettime(CLOCK_MONOTONIC, &ts2);
-        t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
-        tsum = tsum + t;
-        printf("%.4f\n", t);
+
+        tsum += write_log(AS_PS->log.index, &AS_PS->log);
+
         // read_log(AS_PS->log.index);
 
         /* AS_VSの更新 */
