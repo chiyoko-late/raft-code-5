@@ -82,8 +82,6 @@ void worker(int &sock_client, int &connectserver_num)
 
         tsum += write_log(&AS_PS->log, AERPC_A);
 
-        // read_log(AS_PS->log.index);
-
         /* AS_VSの更新 */
         AS_VS->LastAppliedIndex += 1;
 
@@ -107,6 +105,7 @@ void worker(int &sock_client, int &connectserver_num)
         // time[i] = t;
         // fprintf(timerec, "%.4f\n", t);
     }
+    // read_log();
     printf("%.4f\n", tsum);
 
     printf("%ld\n", (ALL_ACCEPTED_ENTRIES / ENTRY_NUM));

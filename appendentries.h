@@ -142,30 +142,23 @@ double write_log(
     return t;
 }
 
-// void read_log(
-//     // char filename[],
-//     int i)
-// {
-//     struct AllServer_PersistentState *AS_PS = new struct AllServer_PersistentState;
+void read_log()
+{
+    struct LOG *r_log = new LOG;
 
-//     lseek(fdo, sizeof(struct AllServer_PersistentState) * (i - 1), SEEK_SET);
-
-//     read(fdo, AS_PS, sizeof(struct AllServer_PersistentState));
-
-//     for (int num = 1; num < ONCE_SEND_ENTRIES; num++)
-//     {
-//         printf("[logfile] AS_PS->currentTerm = %d\n", AS_PS->currentTerm);
-//         printf("[logfile] AS_PS->voteFor = %d\n", AS_PS->voteFor);
-//         printf("[logfile] AS_PS->log[%d].term = %d\n", (i - 1) * (ONCE_SEND_ENTRIES - 1) + num, AS_PS->log[(i - 1) * (ONCE_SEND_ENTRIES - 1) + num].term);
-//         // printf("[logfile] AS_PS->log[%d].entry = %s\n\n", (i - 1) * (ONCE_SEND_ENTRIES - 1) + num, AS_PS->log[(i - 1) * (ONCE_SEND_ENTRIES - 1) + num].entry);
-//         std::string output_string(AS_PS->log[(i - 1) * (ONCE_SEND_ENTRIES - 1) + num].entry.begin(), AS_PS->log[(i - 1) * (ONCE_SEND_ENTRIES - 1) + num].entry.end());
-
-//         printf("[logfile] AS_PS->log[%d].entry = %s\n\n", (i - 1) * (ONCE_SEND_ENTRIES - 1) + num, output_string.c_str());
-//         // cout << "[logfile] AS_PS->log[ " << (i - 1) * (ONCE_SEND_ENTRIES - 1) + num << "].entry = " << AS_PS->log[(i - 1) * (ONCE_SEND_ENTRIES - 1) + num].entry << endl
-//         //      << endl;
-//     }
-//     return;
-// }
+    lseek(fdo, 0, SEEK_SET);
+    for (int i = 0; i < ALL_ACCEPTED_ENTRIES / ENTRY_NUM; i++)
+    {
+        read(fdo, r_log, sizeof(struct LOG));
+        printf("%d \n", r_log->term);
+        printf("%d \n", r_log->index);
+        for (int num = 0; num < ENTRY_NUM; num++)
+        {
+            printf("%d : %s\n", num, r_log->entries[num].entry);
+        }
+    }
+    return;
+}
 
 // void output_AERPC_A(struct AppendEntriesRPC_Argument *p)
 // {
