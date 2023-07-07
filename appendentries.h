@@ -125,13 +125,15 @@ void read_prev(int prevLogIndex, int *read_index, int *read_term)
 }
 
 double write_log(
-    int prevLogIndex, struct LOG *log)
+    struct LOG *log)
 {
     clock_gettime(CLOCK_MONOTONIC, &ts1);
+
     write(fdo, &log->term, sizeof(int));
     write(fdo, &log->index, sizeof(int));
     write(fdo, log->entries.data(), sizeof(append_entry) * ENTRY_NUM);
     fsync(fdo);
+
     clock_gettime(CLOCK_MONOTONIC, &ts2);
     t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
     printf("%.4f\n", t);

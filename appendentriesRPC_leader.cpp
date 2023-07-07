@@ -79,7 +79,7 @@ void worker(int &sock_client, int &connectserver_num)
         AS_PS->log.term = AS_PS->currentTerm;
         AS_PS->log.index = AS_PS->log.index + 1;
 
-        tsum += write_log(AS_PS->log.index, &AS_PS->log);
+        tsum += write_log(&AS_PS->log);
 
         // read_log(AS_PS->log.index);
 

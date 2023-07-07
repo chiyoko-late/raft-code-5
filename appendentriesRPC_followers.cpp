@@ -47,7 +47,7 @@ int consistency_check(
         {
             as_ps->log.term = rpc->term;
             as_ps->log.index = rpc->prevLogIndex + 1;
-            write_log(rpc->prevLogIndex, &as_ps->log);
+            write_log(&as_ps->log);
             printf("success\n");
             return true;
         }
@@ -59,7 +59,7 @@ int consistency_check(
     {
         as_ps->log.term = rpc->term;
         as_ps->log.index = rpc->prevLogIndex + 1;
-        tsum += write_log(rpc->prevLogIndex, &as_ps->log);
+        tsum += write_log(&as_ps->log);
 
         // read_log(rpc->prevLogIndex);
     }
