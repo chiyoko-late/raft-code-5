@@ -60,7 +60,7 @@ struct AppendEntriesRPC_Argument
     int prevLogIndex;
     int prevLogTerm;
     int leaderCommit;
-    std::vector<append_entry> entries = std::vector<append_entry>(ENTRY_NUM);
+    struct append_entry entries[ENTRY_NUM];
 };
 
 struct AppendEntriesRPC_Result
@@ -73,7 +73,7 @@ struct LOG
 {
     int term;
     int index;
-    std::vector<append_entry> entries = std::vector<append_entry>(ENTRY_NUM);
+    struct append_entry entries[ENTRY_NUM];
 };
 
 struct AllServer_PersistentState
@@ -125,13 +125,17 @@ void read_prev(int prevLogIndex, int *read_index, int *read_term)
 }
 
 double write_log(
-    int prevLogIndex, struct LOG *log)
+    struct LOG *log,
+    struct AppendEntriesRPC_Argument *rpc)
 {
     clock_gettime(CLOCK_MONOTONIC, &ts1);
+
     write(fdo, &log->term, sizeof(int));
     write(fdo, &log->index, sizeof(int));
-    write(fdo, log->entries.data(), sizeof(append_entry) * ENTRY_NUM);
+    // write(fdo, log->entries.data(), sizeof(append_entry) * ENTRY_NUM);
+    write(fdo, &rpc->entries, sizeof(append_entry) * ENTRY_NUM);
     fsync(fdo);
+
     clock_gettime(CLOCK_MONOTONIC, &ts2);
     t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
     printf("%.4f\n", t);

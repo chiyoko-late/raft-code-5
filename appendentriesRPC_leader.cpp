@@ -23,7 +23,7 @@ void AppendEntriesRPC(int i)
     AERPC_A->prevLogIndex = AS_PS->log.index - 1;
     AERPC_A->prevLogTerm = AS_PS->log.term;
     AERPC_A->leaderCommit = AS_VS->commitIndex;
-    AERPC_A->entries = AS_PS->log.entries;
+    // AERPC_A->entries = AS_PS->log.entries;
 
     my_send(sock[i + 1], AERPC_A, sizeof(struct AppendEntriesRPC_Argument));
     // printf("server%d finish sending\n\n", i);
@@ -73,13 +73,14 @@ void worker(int &sock_client, int &connectserver_num)
         for (int k = 0; k < ENTRY_NUM; k++)
         {
             // clientから受け取り
-            my_recv(sock_client, &AS_PS->log.entries[k], sizeof(char) * STRING);
+            my_recv(sock_client, &AERPC_A->entries[k], sizeof(char) * STRING);
+            // printf("%s", AS_PS->log.entries[k].entry);
         }
 
         AS_PS->log.term = AS_PS->currentTerm;
         AS_PS->log.index = AS_PS->log.index + 1;
 
-        tsum += write_log(AS_PS->log.index, &AS_PS->log);
+        tsum += write_log(&AS_PS->log, AERPC_A);
 
         // read_log(AS_PS->log.index);
 
