@@ -103,7 +103,6 @@ void worker(int &sock_client, int &connectserver_num)
         }
         clock_gettime(CLOCK_MONOTONIC, &ts4);
         t = ts4.tv_sec - ts3.tv_sec + (ts4.tv_nsec - ts3.tv_nsec) / 1e9;
-        printf("time: %.4f\n", t);
 
         my_send(sock_client, &result, sizeof(int) * 1);
 
@@ -112,6 +111,7 @@ void worker(int &sock_client, int &connectserver_num)
     }
     // read_log();
     printf("%.4f\n", tsum);
+    printf("%.4f\n", t);
 
     printf("%ld\n", (ALL_ACCEPTED_ENTRIES / ENTRY_NUM));
     // for (int i = 0; i < ALL_ACCEPTED_ENTRIES / ENTRY_NUM; i++)
