@@ -7,6 +7,11 @@
 #include "appendentries.h"
 #include "debug.h"
 
+struct AppendEntriesRPC_Argument *AERPC_A = new struct AppendEntriesRPC_Argument;
+struct AppendEntriesRPC_Result *AERPC_R = new struct AppendEntriesRPC_Result;
+struct AllServer_PersistentState *AS_PS = new struct AllServer_PersistentState;
+struct AllServer_VolatileState *AS_VS = new struct AllServer_VolatileState;
+
 FILE *timerec;
 
 int consistency_check(
@@ -162,10 +167,10 @@ int main(int argc, char *argv[])
     }
     printf("listen success!\n");
 
-    struct AppendEntriesRPC_Argument *AERPC_A = new struct AppendEntriesRPC_Argument;
-    struct AppendEntriesRPC_Result *AERPC_R = new struct AppendEntriesRPC_Result;
-    struct AllServer_PersistentState *AS_PS = new struct AllServer_PersistentState;
-    struct AllServer_VolatileState *AS_VS = new struct AllServer_VolatileState;
+    // struct AppendEntriesRPC_Argument *AERPC_A = new struct AppendEntriesRPC_Argument;
+    // struct AppendEntriesRPC_Result *AERPC_R = new struct AppendEntriesRPC_Result;
+    // struct AllServer_PersistentState *AS_PS = new struct AllServer_PersistentState;
+    // struct AllServer_VolatileState *AS_VS = new struct AllServer_VolatileState;
     printf("made logfile\n");
 
     make_logfile(argv[2]);
