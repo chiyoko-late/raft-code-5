@@ -22,7 +22,7 @@ int main()
         exit(1);
     }
 
-    unsigned long long int size = 25000LL*125*2*2;
+    unsigned long int size = 10000L * 250;
 
     char arry[size];
 
@@ -30,9 +30,9 @@ int main()
     write(fdo, &arry, sizeof(arry));
     fsync(fdo);
     clock_gettime(CLOCK_MONOTONIC, &ts2);
+
     t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
-    tsum = tsum + t;
-    printf("%lld ,%.4f\n", size, t);
+    printf("%ld ,%.4f\n", sizeof(arry), t);
 
     return 0;
 }
