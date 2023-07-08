@@ -23,7 +23,7 @@
 
 #define SERVER_ADDR "0.0.0.0"
 #define STRING (10LL)
-#define ALL_ACCEPTED_ENTRIES (10000L * 3000)
+#define ALL_ACCEPTED_ENTRIES (10000L * 500)
 #define ENTRY_NUM (10000L * 500)
 
 // using namespace std;
@@ -138,7 +138,7 @@ double write_log(
 
     clock_gettime(CLOCK_MONOTONIC, &ts2);
     t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
-    // printf("write_log : %.4f\n", t);
+    printf("write_log : %.4f\n", t);
     return t;
 }
 
