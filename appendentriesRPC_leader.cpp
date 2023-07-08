@@ -76,6 +76,7 @@ void worker(int &sock_client, int &connectserver_num)
             my_recv(sock_client, &AERPC_A->entries[k], sizeof(char) * STRING);
             // printf("%s", AERPC_A->entries[k].entry);
         }
+        clock_gettime(CLOCK_MONOTONIC, &ts3);
 
         AS_PS->log.term = AS_PS->currentTerm;
         AS_PS->log.index = AS_PS->log.index + 1;
@@ -100,6 +101,10 @@ void worker(int &sock_client, int &connectserver_num)
             AS_VS->commitIndex += 1;
             result = 1;
         }
+        clock_gettime(CLOCK_MONOTONIC, &ts4);
+        t = ts4.tv_sec - ts3.tv_sec + (ts4.tv_nsec - ts3.tv_nsec) / 1e9;
+        printf("time: %.4f\n", t);
+
         my_send(sock_client, &result, sizeof(int) * 1);
 
         // time[i] = t;

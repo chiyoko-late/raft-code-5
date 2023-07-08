@@ -23,8 +23,8 @@
 
 #define SERVER_ADDR "0.0.0.0"
 #define STRING (10LL)
-#define ALL_ACCEPTED_ENTRIES (10000L)
-#define ENTRY_NUM (1L)
+#define ALL_ACCEPTED_ENTRIES (10000L * 250)
+#define ENTRY_NUM (10000L * 250)
 
 // using namespace std;
 
@@ -34,7 +34,7 @@
 
 uint64_t c1,
     c2;
-struct timespec ts1, ts2;
+struct timespec ts1, ts2, ts3, ts4;
 double t;
 double tsum;
 
