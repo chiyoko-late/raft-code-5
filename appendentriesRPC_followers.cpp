@@ -7,17 +7,16 @@
 #include "appendentries.h"
 #include "debug.h"
 
-struct AppendEntriesRPC_Argument *AERPC_A = new struct AppendEntriesRPC_Argument;
+struct AppendEntriesRPC_Argument *rpc = new struct AppendEntriesRPC_Argument;
 struct AppendEntriesRPC_Result *AERPC_R = new struct AppendEntriesRPC_Result;
-struct AllServer_PersistentState *AS_PS = new struct AllServer_PersistentState;
-struct AllServer_VolatileState *AS_VS = new struct AllServer_VolatileState;
-
-FILE *timerec;
+struct AllServer_PersistentState *as_ps = new struct AllServer_PersistentState;
+struct AllServer_VolatileState *as_vs = new struct AllServer_VolatileState;
 
 int consistency_check(
-    struct AppendEntriesRPC_Argument *rpc,
-    struct AllServer_PersistentState *as_ps,
-    struct AllServer_VolatileState *as_vs)
+    // struct AppendEntriesRPC_Argument *rpc,
+    // struct AllServer_PersistentState *as_ps,
+    // struct AllServer_VolatileState *as_vs
+)
 {
 
     // 1. Reply false if term<currentTerm
@@ -80,25 +79,26 @@ int consistency_check(
 };
 
 int transfer(
-    int sock,
-    struct AppendEntriesRPC_Argument *AERPC_A,
-    struct AppendEntriesRPC_Result *AERPC_R,
-    struct AllServer_PersistentState *AS_PS,
-    struct AllServer_VolatileState *AS_VS)
+    int sock
+    // struct AppendEntriesRPC_Argument *AERPC_A,
+    // struct AppendEntriesRPC_Result *AERPC_R,
+    // struct AllServer_PersistentState *AS_PS,
+    // struct AllServer_VolatileState *AS_VS
+)
 {
 
     /* リーダーから文字列を受信 */
     // printf("try-recv\n");
-    my_recv(sock, AERPC_A, sizeof(struct AppendEntriesRPC_Argument));
+    my_recv(sock, rpc, sizeof(struct AppendEntriesRPC_Argument));
     // printf("Receiving AppendEntriesRPC is success.\n");
 
     // output_AERPC_A(AERPC_A);
 
     /* consistency check */
     // clock_gettime(CLOCK_MONOTONIC, &ts1);
-    AERPC_R->success = consistency_check(AERPC_A, AS_PS, AS_VS);
+    AERPC_R->success = consistency_check();
     // clock_gettime(CLOCK_MONOTONIC, &ts2);
-    AERPC_R->term = AS_PS->currentTerm;
+    AERPC_R->term = as_ps->currentTerm;
     if (AERPC_R->success == false)
     {
         printf("AERPC_R->success == false\n");
@@ -176,6 +176,7 @@ int main(int argc, char *argv[])
     make_logfile(argv[2]);
 
     // 時間記録用ファイル
+    FILE *timerec;
     timerec = fopen("cctime.txt", "w+");
     if (timerec == NULL)
     {
@@ -183,12 +184,12 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    AS_PS->currentTerm = 0;
-    AS_PS->log.index = 0;
-    AS_PS->log.term = 0;
+    as_ps->currentTerm = 0;
+    as_ps->log.index = 0;
+    as_ps->log.term = 0;
 
-    AS_VS->commitIndex = 0;
-    AS_VS->LastAppliedIndex = 0;
+    as_vs->commitIndex = 0;
+    as_vs->LastAppliedIndex = 0;
 
     int last_id = 0;
     int sock_leader = 0;
@@ -218,11 +219,11 @@ ACCEPT:
         close(old_sock_client);
     }
 
-    AS_PS->currentTerm += 1;
+    as_ps->currentTerm += 1;
 
     for (int i = 0; i < (ALL_ACCEPTED_ENTRIES / ENTRY_NUM); i++)
     {
-        transfer(sock_leader, AERPC_A, AERPC_R, AS_PS, AS_VS);
+        transfer(sock_leader);
     }
     // read_log();
     printf("%.4f\n", tsum);
