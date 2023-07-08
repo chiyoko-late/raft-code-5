@@ -138,7 +138,7 @@ double write_log(
 
     clock_gettime(CLOCK_MONOTONIC, &ts2);
     t = ts2.tv_sec - ts1.tv_sec + (ts2.tv_nsec - ts1.tv_nsec) / 1e9;
-    printf("write_log : %.4f\n", t);
+    // printf("write_log : %.4f\n", t);
     return t;
 }
 
